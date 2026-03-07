@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, Mail, MapPin, Send } from "lucide-react";
+import { Phone, Mail, MapPin, Send, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,12 +15,11 @@ const Contact = () => {
     e.preventDefault();
     setLoading(true);
 
-    // mailto fallback
     const subject = encodeURIComponent("Contactaanvraag via website");
     const body = encodeURIComponent(
       `Naam: ${form.naam}\nTelefoon: ${form.telefoon}\nEmail: ${form.email}\n\nBericht:\n${form.bericht}`
     );
-    window.location.href = `mailto:contact@schuifpuispecialisten.nl?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:info@schuifpuiservicenederland.nl?subject=${subject}&body=${body}`;
 
     setTimeout(() => {
       setLoading(false);
@@ -40,7 +39,7 @@ const Contact = () => {
             Contact
           </h1>
           <p className="text-primary-foreground/80 text-lg max-w-xl">
-            Neem contact met ons op voor een vrijblijvende offerte of advies.
+            Neem contact met ons op voor een vrijblijvende offerte of advies over uw schuifpui.
           </p>
         </div>
       </section>
@@ -54,46 +53,19 @@ const Contact = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1 block">Naam *</label>
-                  <Input
-                    required
-                    maxLength={100}
-                    value={form.naam}
-                    onChange={(e) => setForm({ ...form, naam: e.target.value })}
-                    placeholder="Uw naam"
-                  />
+                  <Input required maxLength={100} value={form.naam} onChange={(e) => setForm({ ...form, naam: e.target.value })} placeholder="Uw naam" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1 block">Telefoon *</label>
-                  <Input
-                    required
-                    type="tel"
-                    maxLength={20}
-                    value={form.telefoon}
-                    onChange={(e) => setForm({ ...form, telefoon: e.target.value })}
-                    placeholder="Uw telefoonnummer"
-                  />
+                  <Input required type="tel" maxLength={20} value={form.telefoon} onChange={(e) => setForm({ ...form, telefoon: e.target.value })} placeholder="Uw telefoonnummer" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1 block">E-mail *</label>
-                  <Input
-                    required
-                    type="email"
-                    maxLength={255}
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="Uw e-mailadres"
-                  />
+                  <Input required type="email" maxLength={255} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Uw e-mailadres" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1 block">Bericht *</label>
-                  <Textarea
-                    required
-                    maxLength={1000}
-                    rows={5}
-                    value={form.bericht}
-                    onChange={(e) => setForm({ ...form, bericht: e.target.value })}
-                    placeholder="Beschrijf uw probleem of vraag"
-                  />
+                  <Textarea required maxLength={1000} rows={5} value={form.bericht} onChange={(e) => setForm({ ...form, bericht: e.target.value })} placeholder="Beschrijf uw probleem of vraag" />
                 </div>
                 <Button type="submit" variant="cta" size="lg" className="w-full" disabled={loading}>
                   <Send className="w-4 h-4" />
@@ -113,28 +85,51 @@ const Contact = () => {
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground">Telefoon</div>
-                      <div className="font-medium">+31 344 700 234</div>
+                      <div className="font-medium">0344 700 234</div>
                     </div>
                   </a>
-                  <a href="mailto:contact@schuifpuispecialisten.nl" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors">
+                  <a href="tel:+31636074531" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors">
+                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <Smartphone className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">Mobiel</div>
+                      <div className="font-medium">06 360 745 31</div>
+                    </div>
+                  </a>
+                  <a href="mailto:info@schuifpuiservicenederland.nl" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
                       <Mail className="w-5 h-5 text-accent" />
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground">E-mail</div>
-                      <div className="font-medium">contact@schuifpuispecialisten.nl</div>
+                      <div className="font-medium">info@schuifpuiservicenederland.nl</div>
                     </div>
                   </a>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                       <MapPin className="w-5 h-5 text-accent" />
                     </div>
                     <div>
-                      <div className="text-sm text-muted-foreground">Werkgebied</div>
-                      <div className="font-medium">Heel Nederland</div>
+                      <div className="text-sm text-muted-foreground">Adres</div>
+                      <div className="font-medium">Voltastraat 3B<br />4004 KA Tiel</div>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Google Maps */}
+              <div className="rounded-xl overflow-hidden border border-border">
+                <iframe
+                  title="Locatie Schuifpui Service Nederland"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2474.5!2d5.4284!3d51.8853!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c6b5e5b6d5b5b5%3A0x0!2sVoltastraat+3B%2C+4004+KA+Tiel!5e0!3m2!1snl!2snl!4v1"
+                  width="100%"
+                  height="250"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
 
               <div className="bg-card rounded-xl p-6 border border-border">
