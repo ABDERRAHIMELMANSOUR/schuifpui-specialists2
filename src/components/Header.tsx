@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { label: "Home", path: "/" },
   { label: "Diensten", path: "/diensten" },
+  { label: "Werkgebieden", path: "/werkgebieden" },
   { label: "Over Ons", path: "/over-ons" },
   { label: "Contact", path: "/contact" },
 ];
@@ -27,11 +28,10 @@ const Header = () => {
             </svg>
           </div>
           <span className="font-heading font-bold text-lg text-foreground hidden sm:inline">
-            Schuifpui<span className="text-accent">specialisten</span>
+            Schuifpui<span className="text-accent">Service</span>
           </span>
         </Link>
 
-        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
             <Link
@@ -52,12 +52,11 @@ const Header = () => {
           <Button variant="cta" size="lg" asChild>
             <a href="tel:+31344700234">
               <Phone className="w-4 h-4" />
-              Bel Direct
+              0344 700 234
             </a>
           </Button>
         </div>
 
-        {/* Mobile toggle */}
         <button
           className="md:hidden p-2 text-foreground"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -67,7 +66,6 @@ const Header = () => {
         </button>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-card border-t border-border">
           <nav className="container py-4 flex flex-col gap-1">
@@ -88,7 +86,7 @@ const Header = () => {
             <Button variant="cta" size="lg" className="mt-2" asChild>
               <a href="tel:+31344700234">
                 <Phone className="w-4 h-4" />
-                Bel Direct
+                0344 700 234
               </a>
             </Button>
           </nav>
