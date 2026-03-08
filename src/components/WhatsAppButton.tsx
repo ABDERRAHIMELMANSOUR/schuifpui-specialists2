@@ -2,7 +2,7 @@ import { MessageCircle } from "lucide-react";
 
 const WhatsAppButton = () => (
   <a
-    href="https://wa.me/31636074531"
+    href="https://wa.me/31636074531?text=Hallo%2C%20ik%20heb%20een%20vraag%20over%20schuifpui%20reparatie."
     target="_blank"
     rel="noopener noreferrer"
     aria-label="WhatsApp"

@@ -19,18 +19,8 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border shadow-sm">
       <div className="container flex items-center justify-between h-16 md:h-20">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="hsl(var(--primary-foreground))" strokeWidth="2">
-              <rect x="2" y="4" width="20" height="16" rx="2" />
-              <line x1="12" y1="4" x2="12" y2="20" />
-              <line x1="7" y1="4" x2="7" y2="20" strokeOpacity="0.4" />
-              <line x1="17" y1="4" x2="17" y2="20" strokeOpacity="0.4" />
-            </svg>
-          </div>
-          <span className="font-heading font-bold text-lg text-foreground hidden sm:inline">
-            Schuifpui<span className="text-accent">Service</span>
-          </span>
+        <Link to="/" className="flex items-center">
+          <img src={logo} alt="Schuifpui Service Nederland" className="h-10 md:h-12 w-auto" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">

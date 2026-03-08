@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Phone, FileText, Shield, Clock, Wrench, CheckCircle, Star, MapPin, Users, Award, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
-import heroImage from "@/assets/hero-sliding-door.jpg";
+import heroImage from "@/assets/image_hero.jpg";
 import beforeAfterImage from "@/assets/before-after.jpg";
 
 const stats = [
