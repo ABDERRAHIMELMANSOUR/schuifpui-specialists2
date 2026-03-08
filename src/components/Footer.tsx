@@ -63,7 +63,7 @@ const Footer = () => (
     </div>
     <div className="border-t border-primary-foreground/10">
       <div className="container py-4 text-center text-xs text-primary-foreground/40">
-        © {new Date().getFullYear()} Schuifpui Service Nederland. Alle rechten voorbehouden. | KvK: [Nummer invoegen]
+        © {new Date().getFullYear()} Schuifpui Service Nederland. Alle rechten voorbehouden.
       </div>
     </div>
   </footer>
