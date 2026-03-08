@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Smartphone } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => (
   <footer className="bg-primary text-primary-foreground">
@@ -7,14 +8,8 @@ const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Brand */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-primary-foreground/20 flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <line x1="12" y1="4" x2="12" y2="20" />
-              </svg>
-            </div>
-            <span className="font-heading font-bold text-lg">Schuifpui Service</span>
+          <div className="mb-4">
+            <img src={logo} alt="Schuifpui Service Nederland" className="h-10 w-auto brightness-0 invert" />
           </div>
           <p className="text-primary-foreground/70 text-sm leading-relaxed">
             Uw specialist voor schuifpui reparatie, onderhoud en service door heel Nederland.
