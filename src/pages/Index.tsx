@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import heroImage from "@/assets/image_hero.jpg";
 import beforeAfterImage from "@/assets/before-after.jpg";
+import workPhoto1 from "@/assets/work-photo-1.jpg";
+import workPhoto2 from "@/assets/work-photo-2.jpg";
+import workPhoto3 from "@/assets/work-photo-3.jpg";
+import workPhoto4 from "@/assets/work-photo-4.jpg";
+import workPhoto5 from "@/assets/work-photo-5.jpg";
+import workPhoto6 from "@/assets/work-photo-6.jpg";
+import workPhotoHero from "@/assets/work-photo-hero.jpg";
 
 const stats = [
   { value: "15+", label: "Jaar ervaring" },
