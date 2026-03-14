@@ -145,32 +145,40 @@ const Index = () => (
       </div>
     </section>
 
-    {/* Before / After */}
+    {/* Work Photos */}
     <section className="bg-background">
       <div className="container py-16 md:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="font-heading text-2xl md:text-3xl font-bold mb-4">
-              Voor & Na Reparatie
-            </h2>
-            <p className="text-muted-foreground leading-relaxed mb-6">
-              Bekijk het verschil dat onze vakkundige reparaties maken. Van versleten en beschadigde schuifpuien naar een perfect werkend resultaat. Wij herstellen uw schuifpui naar de originele staat.
-            </p>
-            <ul className="space-y-3 mb-6">
-              {["Soepel schuivend resultaat", "Verbeterde isolatie", "Nieuwe sloten en hendels", "Professionele afwerking"].map((item) => (
-                <li key={item} className="flex items-center gap-2 text-foreground">
-                  <CheckCircle className="w-5 h-5 text-accent shrink-0" />
-                  <span className="text-sm">{item}</span>
-                </li>
-              ))}
-            </ul>
-            <Button variant="cta" size="lg" asChild>
-              <Link to="/contact">Vraag een Offerte aan</Link>
-            </Button>
-          </div>
-          <div className="rounded-xl overflow-hidden shadow-lg border border-border">
-            <img src={beforeAfterImage} alt="Voor en na schuifpui reparatie" className="w-full h-auto" loading="lazy" />
-          </div>
+        <h2 className="font-heading text-2xl md:text-3xl font-bold text-center mb-4">
+          Ons Werk in Beeld
+        </h2>
+        <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-12">
+          Bekijk foto's van daadwerkelijke klussen uitgevoerd door onze vakman Maarten. Van schuifpui reparaties tot deurrenovaties.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            { src: workPhotoHero, alt: "Schuifpui service monteur aan het werk bij klant" },
+            { src: workPhoto1, alt: "Schuifpui reparatie - rail onderhoud" },
+            { src: workPhoto2, alt: "Vakkundige schuifpui reparatie door monteur" },
+            { src: workPhoto4, alt: "Deur renovatie - eindresultaat bij klant" },
+            { src: workPhoto3, alt: "Deur vervanging - binnenzijde afgewerkt" },
+            { src: workPhoto6, alt: "Deur renovatie - werkzaamheden bij klant" },
+          ].map((photo) => (
+            <div key={photo.alt} className="rounded-xl overflow-hidden shadow-md border border-border group">
+              <div className="aspect-[4/3] overflow-hidden">
+                <img
+                  src={photo.src}
+                  alt={photo.alt}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="text-center mt-10">
+          <Button variant="cta" size="lg" asChild>
+            <Link to="/contact">Vraag een Offerte aan</Link>
+          </Button>
         </div>
       </div>
     </section>
