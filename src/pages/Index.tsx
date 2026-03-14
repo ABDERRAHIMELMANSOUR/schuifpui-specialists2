@@ -56,7 +56,7 @@ const Index = () => (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0">
         <img src={heroImage} alt="Moderne schuifpui in luxe woning" className="w-full h-full object-cover" loading="eager" />
-        <div className="absolute inset-0 bg-primary/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(215,70%,22%,0.75)] to-[hsl(200,80%,30%,0.6)]" />
       </div>
       <div className="relative container py-20 md:py-32 lg:py-44">
         <div className="max-w-2xl animate-fade-in-up">
