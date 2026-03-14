@@ -37,7 +37,7 @@ const Diensten = () => (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0">
         <img src={serviceImage} alt="Schuifpui reparatie specialist aan het werk" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-primary/85" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(215,70%,22%,0.75)] to-[hsl(200,80%,30%,0.6)]" />
       </div>
       <div className="relative container py-16 md:py-24">
         <h1 className="font-heading text-3xl md:text-5xl font-extrabold text-primary-foreground mb-4">
