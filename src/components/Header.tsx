@@ -3,11 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import { Phone, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.png";
+import { PHONE_DISPLAY, PHONE_E164 } from "@/lib/site";
 
 const navItems = [
   { label: "Home", path: "/" },
   { label: "Diensten", path: "/diensten" },
   { label: "Werkgebieden", path: "/werkgebieden" },
+  { label: "Reviews", path: "/beoordelingen" },
   { label: "Over Ons", path: "/over-ons" },
   { label: "Contact", path: "/contact" },
 ];
@@ -20,7 +22,13 @@ const Header = () => {
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border shadow-sm">
       <div className="container flex items-center justify-between h-16 md:h-20">
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="Schuifpui Service Nederland" className="h-10 md:h-12 w-auto" />
+          <img
+            src={logo}
+            alt="Logo Schuifpui Service Nederland – schuifpui reparatie specialist"
+            className="h-10 md:h-12 w-auto"
+            width={200}
+            height={48}
+          />
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
@@ -28,7 +36,7 @@ const Header = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 location.pathname === item.path
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -41,9 +49,9 @@ const Header = () => {
 
         <div className="hidden md:flex items-center gap-3">
           <Button variant="cta" size="lg" asChild>
-            <a href="tel:+31344700234">
+            <a href={`tel:${PHONE_E164}`}>
               <Phone className="w-4 h-4" />
-              0344 700 234
+              {PHONE_DISPLAY}
             </a>
           </Button>
         </div>
@@ -75,9 +83,9 @@ const Header = () => {
               </Link>
             ))}
             <Button variant="cta" size="lg" className="mt-2" asChild>
-              <a href="tel:+31344700234">
+              <a href={`tel:${PHONE_E164}`}>
                 <Phone className="w-4 h-4" />
-                0344 700 234
+                {PHONE_DISPLAY}
               </a>
             </Button>
           </nav>

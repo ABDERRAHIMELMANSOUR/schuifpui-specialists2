@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import { Award, Users, MapPin, Clock, Phone, Shield, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ReviewDialog from "@/components/ReviewDialog";
+import { PHONE_DISPLAY, PHONE_E164 } from "@/lib/site";
 
 const highlights = [
   { icon: Award, title: "15+ Jaar Ervaring", desc: "Al meer dan 15 jaar dé specialist in schuifpui reparatie en onderhoud." },
@@ -23,11 +26,13 @@ const OverOns = () => (
   <Layout>
     <section className="bg-primary">
       <div className="container py-16 md:py-24">
-        <h1 className="font-heading text-3xl md:text-5xl font-extrabold text-primary-foreground mb-4">
-          Over Schuifpui Service Nederland
+        <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Over Ons" }]} />
+        <h1 className="font-heading text-3xl md:text-5xl font-extrabold text-primary-foreground mt-6 mb-4">
+          Over Schuifpui Service Nederland – Uw Schuifpui Specialist
         </h1>
-        <p className="text-primary-foreground/80 text-lg max-w-xl">
-          Vakmanschap, betrouwbaarheid en klanttevredenheid staan bij ons centraal.
+        <p className="text-primary-foreground/80 text-lg max-w-2xl">
+          Al meer dan 15 jaar het vertrouwde adres voor schuifpui reparatie en onderhoud in heel
+          Nederland. Vakmanschap, betrouwbaarheid en klanttevredenheid staan bij ons centraal.
         </p>
       </div>
     </section>
@@ -86,10 +91,25 @@ const OverOns = () => (
         <h2 className="font-heading text-2xl md:text-3xl font-bold text-primary-foreground mb-4">
           Klaar om te starten?
         </h2>
-        <p className="text-primary-foreground/70 mb-8">Neem contact op voor een vrijblijvend adviesgesprek.</p>
-        <Button variant="hero" size="lg" asChild>
-          <Link to="/contact"><Phone className="w-5 h-5" /> Neem Contact Op</Link>
-        </Button>
+        <p className="text-primary-foreground/70 mb-8">
+          Neem contact op voor een vrijblijvend adviesgesprek of bel direct met een specialist.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Button variant="hero" size="lg" asChild>
+            <a href={`tel:${PHONE_E164}`}>
+              <Phone className="w-5 h-5" /> {PHONE_DISPLAY}
+            </a>
+          </Button>
+          <Button variant="heroOutline" size="lg" asChild>
+            <Link to="/contact">Neem Contact Op</Link>
+          </Button>
+        </div>
+        <div className="mt-8 pt-8 border-t border-primary-foreground/10">
+          <p className="text-primary-foreground/70 text-sm mb-4">
+            Al klant geweest? Wij horen graag wat u van onze service vond.
+          </p>
+          <ReviewDialog label="Laat een beoordeling achter" />
+        </div>
       </div>
     </section>
   </Layout>

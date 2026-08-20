@@ -2,10 +2,231 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "rewrites": [
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "schuifpuiservicenederland.nl"
+        }
+      ],
+      "destination": "https://www.schuifpuiservicenederland.nl/:path*",
+      "statusCode": 301
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/home",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/services",
+      "destination": "/diensten",
+      "statusCode": 301
+    },
+    {
+      "source": "/service",
+      "destination": "/diensten",
+      "statusCode": 301
+    },
+    {
+      "source": "/about",
+      "destination": "/over-ons",
+      "statusCode": 301
+    },
+    {
+      "source": "/about-us",
+      "destination": "/over-ons",
+      "statusCode": 301
+    },
+    {
+      "source": "/contact-us",
+      "destination": "/contact",
+      "statusCode": 301
+    },
+    {
+      "source": "/areas",
+      "destination": "/werkgebieden",
+      "statusCode": 301
+    },
+    {
+      "source": "/service-areas",
+      "destination": "/werkgebieden",
+      "statusCode": 301
+    },
+    {
+      "source": "/reviews",
+      "destination": "/beoordelingen",
+      "statusCode": 301
+    },
+    {
+      "source": "/dienst",
+      "destination": "/diensten",
+      "statusCode": 301
+    },
+    {
+      "source": "/werkgebied",
+      "destination": "/werkgebieden",
+      "statusCode": 301
+    },
+    {
+      "source": "/over",
+      "destination": "/over-ons",
+      "statusCode": 301
+    },
+    {
+      "source": "/overons",
+      "destination": "/over-ons",
+      "statusCode": 301
+    },
+    {
+      "source": "/beoordeling",
+      "destination": "/beoordelingen",
+      "statusCode": 301
+    },
+    {
+      "source": "/referenties",
+      "destination": "/beoordelingen",
+      "statusCode": 301
+    },
+    {
+      "source": "/schuifpui-reparatie",
+      "destination": "/diensten/schuifpui-reparatie",
+      "statusCode": 301
+    },
+    {
+      "source": "/schuifpui-onderhoud",
+      "destination": "/diensten/schuifpui-onderhoud",
+      "statusCode": 301
+    },
+    {
+      "source": "/onderhoud",
+      "destination": "/diensten/schuifpui-onderhoud",
+      "statusCode": 301
+    },
+    {
+      "source": "/slot-reparatie",
+      "destination": "/diensten/slot-reparatie-schuifpui",
+      "statusCode": 301
+    },
+    {
+      "source": "/slot-reparatie-schuifpui",
+      "destination": "/diensten/slot-reparatie-schuifpui",
+      "statusCode": 301
+    },
+    {
+      "source": "/hendel-reparatie",
+      "destination": "/diensten/hendel-reparatie",
+      "statusCode": 301
+    },
+    {
+      "source": "/inbraakschade",
+      "destination": "/diensten/inbraakschade-herstel",
+      "statusCode": 301
+    },
+    {
+      "source": "/inbraakschade-herstel",
+      "destination": "/diensten/inbraakschade-herstel",
+      "statusCode": 301
+    },
+    {
+      "source": "/amsterdam",
+      "destination": "/werkgebieden/amsterdam",
+      "statusCode": 301
+    },
+    {
+      "source": "/rotterdam",
+      "destination": "/werkgebieden/rotterdam",
+      "statusCode": 301
+    },
+    {
+      "source": "/utrecht",
+      "destination": "/werkgebieden/utrecht",
+      "statusCode": 301
+    },
+    {
+      "source": "/den-haag",
+      "destination": "/werkgebieden/den-haag",
+      "statusCode": 301
+    },
+    {
+      "source": "/eindhoven",
+      "destination": "/werkgebieden/eindhoven",
+      "statusCode": 301
+    },
+    {
+      "source": "/tilburg",
+      "destination": "/werkgebieden/tilburg",
+      "statusCode": 301
+    },
+    {
+      "source": "/breda",
+      "destination": "/werkgebieden/breda",
+      "statusCode": 301
+    },
+    {
+      "source": "/arnhem",
+      "destination": "/werkgebieden/arnhem",
+      "statusCode": 301
+    },
+    {
+      "source": "/nijmegen",
+      "destination": "/werkgebieden/nijmegen",
+      "statusCode": 301
+    },
+    {
+      "source": "/almere",
+      "destination": "/werkgebieden/almere",
+      "statusCode": 301
+    },
+    {
+      "source": "/tiel",
+      "destination": "/werkgebieden/tiel",
+      "statusCode": 301
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
     }
   ]
 }

@@ -5,6 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import Layout from "@/components/Layout";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import {
+  ADDRESS,
+  EMAIL,
+  GOOGLE_MAPS_URL,
+  MOBILE_DISPLAY,
+  MOBILE_E164,
+  PHONE_DISPLAY,
+  PHONE_E164,
+} from "@/lib/site";
 
 const Contact = () => {
   const { toast } = useToast();
@@ -19,7 +29,7 @@ const Contact = () => {
     const body = encodeURIComponent(
       `Naam: ${form.naam}\nTelefoon: ${form.telefoon}\nEmail: ${form.email}\n\nBericht:\n${form.bericht}`
     );
-    window.location.href = `mailto:info@schuifpuiservicenederland.nl?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`;
 
     setTimeout(() => {
       setLoading(false);
@@ -35,11 +45,13 @@ const Contact = () => {
     <Layout>
       <section className="bg-primary">
         <div className="container py-16 md:py-24">
-          <h1 className="font-heading text-3xl md:text-5xl font-extrabold text-primary-foreground mb-4">
-            Contact
+          <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Contact" }]} />
+          <h1 className="font-heading text-3xl md:text-5xl font-extrabold text-primary-foreground mt-6 mb-4">
+            Contact – Schuifpui Service Nederland
           </h1>
-          <p className="text-primary-foreground/80 text-lg max-w-xl">
-            Neem contact met ons op voor een vrijblijvende offerte of advies over uw schuifpui.
+          <p className="text-primary-foreground/80 text-lg max-w-2xl">
+            Neem contact op voor een vrijblijvende offerte of direct advies over uw schuifpui.
+            Bereikbaar op werkdagen van 08:00 tot 18:00 uur.
           </p>
         </div>
       </section>
@@ -53,15 +65,15 @@ const Contact = () => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1 block">Naam *</label>
-                  <Input required maxLength={100} value={form.naam} onChange={(e) => setForm({ ...form, naam: e.target.value })} placeholder="Uw naam" />
+                  <Input required maxLength={100} autoComplete="name" value={form.naam} onChange={(e) => setForm({ ...form, naam: e.target.value })} placeholder="Uw naam" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1 block">Telefoon *</label>
-                  <Input required type="tel" maxLength={20} value={form.telefoon} onChange={(e) => setForm({ ...form, telefoon: e.target.value })} placeholder="Uw telefoonnummer" />
+                  <Input required type="tel" maxLength={20} autoComplete="tel" value={form.telefoon} onChange={(e) => setForm({ ...form, telefoon: e.target.value })} placeholder="Uw telefoonnummer" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1 block">E-mail *</label>
-                  <Input required type="email" maxLength={255} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Uw e-mailadres" />
+                  <Input required type="email" maxLength={255} autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Uw e-mailadres" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground mb-1 block">Bericht *</label>
@@ -79,31 +91,31 @@ const Contact = () => {
               <div>
                 <h2 className="font-heading text-xl font-bold mb-6">Contactgegevens</h2>
                 <div className="space-y-4">
-                  <a href="tel:+31344700234" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors">
+                  <a href={`tel:${PHONE_E164}`} className="flex items-center gap-3 text-foreground hover:text-accent transition-colors">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
                       <Phone className="w-5 h-5 text-accent" />
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground">Telefoon</div>
-                      <div className="font-medium">0344 700 234</div>
+                      <div className="font-medium">{PHONE_DISPLAY}</div>
                     </div>
                   </a>
-                  <a href="tel:+31636074531" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors">
+                  <a href={`tel:${MOBILE_E164}`} className="flex items-center gap-3 text-foreground hover:text-accent transition-colors">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
                       <Smartphone className="w-5 h-5 text-accent" />
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground">Mobiel</div>
-                      <div className="font-medium">06 360 745 31</div>
+                      <div className="font-medium">{MOBILE_DISPLAY}</div>
                     </div>
                   </a>
-                  <a href="mailto:info@schuifpuiservicenederland.nl" className="flex items-center gap-3 text-foreground hover:text-accent transition-colors">
+                  <a href={`mailto:${EMAIL}`} className="flex items-center gap-3 text-foreground hover:text-accent transition-colors">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
                       <Mail className="w-5 h-5 text-accent" />
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground">E-mail</div>
-                      <div className="font-medium">info@schuifpuiservicenederland.nl</div>
+                      <div className="font-medium">{EMAIL}</div>
                     </div>
                   </a>
                   <div className="flex items-start gap-3">
@@ -112,7 +124,11 @@ const Contact = () => {
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground">Adres</div>
-                      <div className="font-medium">Voltastraat 3B<br />4004 KA Tiel</div>
+                      <div className="font-medium not-italic">
+                        {ADDRESS.streetAddress}
+                        <br />
+                        {ADDRESS.postalCode} {ADDRESS.addressLocality}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -120,7 +136,7 @@ const Contact = () => {
 
               {/* Google Maps */}
               <a
-                href="https://maps.app.goo.gl/QmxnFJ2oZxS7VoiB8"
+                href={GOOGLE_MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block rounded-xl overflow-hidden border border-border"
@@ -147,7 +163,7 @@ const Contact = () => {
                   Wij zijn bereikbaar van maandag t/m vrijdag, 08:00 - 18:00 uur.
                 </p>
                 <Button variant="cta" size="lg" asChild>
-                  <a href="tel:+31344700234"><Phone className="w-4 h-4" /> Bel Nu</a>
+                  <a href={`tel:${PHONE_E164}`}><Phone className="w-4 h-4" /> Bel nu: {PHONE_DISPLAY}</a>
                 </Button>
               </div>
             </div>
