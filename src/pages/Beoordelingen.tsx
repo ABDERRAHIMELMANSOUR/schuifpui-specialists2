@@ -1,19 +1,31 @@
 import { Link } from "react-router-dom";
-import { Phone, ExternalLink, Users, ChevronRight } from "lucide-react";
+import { Phone, ExternalLink, Users, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ReviewDialog from "@/components/ReviewDialog";
 import StarRating from "@/components/StarRating";
-import { averageRating, reviewCount, reviews } from "@/content/reviews";
+import { isUserReview, useReviews } from "@/hooks/use-reviews";
 import { GOOGLE_REVIEW_URL, PHONE_DISPLAY, PHONE_E164 } from "@/lib/site";
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("nl-NL", { year: "numeric", month: "long" });
 
-/** Overzicht van alle klantbeoordelingen + de mogelijkheid er zelf een achter te laten. */
+/**
+ * Overzicht van alle klantbeoordelingen + de mogelijkheid er zelf een achter te
+ * laten. De lijst is de samenvoeging van de gecontroleerde reviews en de
+ * reviews die de bezoeker zelf heeft ingestuurd (opgeslagen in localStorage),
+ * inclusief het bijgewerkte gemiddelde en aantal.
+ */
 const Beoordelingen = () => {
-  const sorted = [...reviews].sort((a, b) => b.date.localeCompare(a.date));
+  const { reviews, reviewCount, averageRating, userReviews, removeReview } = useReviews();
+
+  // Eigen reviews bovenaan, daarna de rest op datum aflopend.
+  const sorted = [...reviews].sort((a, b) => {
+    const own = Number(isUserReview(b)) - Number(isUserReview(a));
+    return own !== 0 ? own : b.date.localeCompare(a.date);
+  });
+
   const distribution = [5, 4, 3, 2, 1].map((stars) => ({
     stars,
     count: reviews.filter((review) => review.rating === stars).length,
@@ -73,29 +85,63 @@ const Beoordelingen = () => {
 
             {/* Reviews */}
             <div className="lg:col-span-2">
-              <h2 className="font-heading text-2xl font-bold mb-6">
+              <h2 className="font-heading text-2xl font-bold mb-2">
                 Alle {reviewCount} beoordelingen
               </h2>
+              {userReviews.length > 0 && (
+                <p className="text-sm text-muted-foreground mb-6">
+                  Waarvan {userReviews.length}{" "}
+                  {userReviews.length === 1 ? "beoordeling" : "beoordelingen"} van uzelf. Die
+                  {userReviews.length === 1 ? " staat" : " staan"} op dit apparaat opgeslagen en
+                  {userReviews.length === 1 ? " telt" : " tellen"} hieronder meteen mee in het
+                  gemiddelde.
+                </p>
+              )}
+              <div className="mb-6" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {sorted.map((review) => (
-                  <article key={`${review.name}-${review.date}`} className="bg-card rounded-xl p-6 border border-border">
-                    <StarRating rating={review.rating} className="mb-3" />
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                      “{review.text}”
-                    </p>
-                    <div className="flex items-center gap-3 pt-4 border-t border-border">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <Users className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-medium text-sm text-foreground">{review.name}</div>
-                        <div className="text-xs text-muted-foreground truncate">
-                          {review.city} · {review.service} · {formatDate(review.date)}
+                {sorted.map((review) => {
+                  const own = isUserReview(review);
+                  return (
+                    <article
+                      key={own ? review.id : `${review.name}-${review.date}`}
+                      className={`bg-card rounded-xl p-6 border ${
+                        own ? "border-accent ring-1 ring-accent/30" : "border-border"
+                      }`}
+                    >
+                      {own && (
+                        <p className="text-xs font-medium text-accent mb-3">
+                          Uw beoordeling · alleen op dit apparaat zichtbaar totdat wij hem hebben
+                          gecontroleerd
+                        </p>
+                      )}
+                      <StarRating rating={review.rating} className="mb-3" />
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                        “{review.text}”
+                      </p>
+                      <div className="flex items-center gap-3 pt-4 border-t border-border">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <Users className="w-5 h-5 text-primary" />
                         </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-sm text-foreground">{review.name}</div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {review.city} · {review.service} · {formatDate(review.date)}
+                          </div>
+                        </div>
+                        {own && (
+                          <button
+                            type="button"
+                            onClick={() => removeReview(review.id)}
+                            aria-label={`Beoordeling van ${review.name} verwijderen`}
+                            className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-secondary transition-colors shrink-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
 
               <div className="mt-10 bg-secondary rounded-xl p-8 border border-border">

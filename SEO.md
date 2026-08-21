@@ -77,20 +77,51 @@ De build faalt als de twee lijsten uiteenlopen, dus vergeten kan niet.
 
 ## 4. Reviews
 
-- **Knop "Schrijf een review"** staat in de footer (op elke pagina), in de sectie
-  *Wat Onze Klanten Zeggen* op de homepage, op `/beoordelingen`, op elke
-  werkgebiedpagina met reviews en op *Over Ons*.
-- De knop opent een modal (`src/components/ReviewDialog.tsx`) met naam,
-  woonplaats, sterrenscore 1–5, dienst en toelichting.
-- Bij versturen wordt — net als bij het contactformulier — een e-mail
-  klaargezet in de mailclient van de bezoeker, gevolgd door een duidelijke
-  bevestiging in beeld en een toast-melding.
-- In de bevestiging staat een tweede knop om de review óók op Google te
-  plaatsen (zie actiepunt 3 hieronder).
+### Waar staat de knop?
 
-Reviews die binnenkomen voeg je toe aan `src/content/reviews.ts`. Gemiddelde
-score en `reviewCount` in het schema worden daaruit berekend, dus die kunnen
-nooit uit de pas lopen met wat er op de site staat.
+De knop **"Schrijf een review"** staat in de footer (dus op elke pagina), in de
+sectie *Wat Onze Klanten Zeggen* op de homepage, op `/beoordelingen`, op elke
+werkgebiedpagina met reviews en op *Over Ons*.
+
+### Wat gebeurt er bij versturen?
+
+`src/components/ReviewDialog.tsx` doet drie dingen, in deze volgorde:
+
+1. **Opslaan in de browser.** De review gaat naar `localStorage` (sleutel
+   `ssn-reviews-v1`, zie `src/hooks/use-reviews.ts`). Hij verschijnt daardoor
+   direct bovenaan op `/beoordelingen`, telt meteen mee in het gemiddelde en in
+   de teller in de footer en op de homepage, en verschijnt ook op de
+   werkgebiedpagina van de opgegeven woonplaats. Er is geen deploy nodig.
+2. **Google openen.** Het Google-bedrijfsprofiel gaat open in een nieuw tabblad.
+   Dat gebeurt synchroon binnen de klik, anders blokkeren browsers het venster.
+   Wordt het tóch geblokkeerd, dan legt de bevestiging dat uit en staat er een
+   knop om het alsnog te openen.
+3. **Bevestigen.** De bezoeker ziet "Bedankt voor je review! Help ons door deze
+   ook op Google te plaatsen", plus een toast-melding.
+
+### Belangrijk: lokale reviews bereiken ons niet vanzelf
+
+`localStorage` is per browser en per apparaat. Een review die een bezoeker
+achterlaat, ziet **alleen die bezoeker**. Daarom staat in de bevestiging een knop
+*"Review ook naar ons mailen"*, die dezelfde review als e-mail klaarzet. Komt zo'n
+mail binnen en klopt hij, voeg hem dan toe aan `src/content/reviews.ts`: pas dan
+is hij voor iedereen zichtbaar en telt hij mee in de structured data.
+
+Op `/beoordelingen` zijn eigen reviews herkenbaar aan een accentrand en het label
+*"Uw beoordeling · alleen op dit apparaat zichtbaar totdat wij hem hebben
+gecontroleerd"*, met een prullenbakknop om hem weer te verwijderen.
+
+### Waarom lokale reviews niet in de structured data staan
+
+De `aggregateRating` in de JSON-LD blijft berekend over `src/content/reviews.ts`.
+Googlebot heeft een lege `localStorage` en ziet dus exact dezelfde reviews als in
+de markup staan. Zouden lokale reviews wél meegaan, dan zou de markup niet
+overeenkomen met de zichtbare inhoud — precies waar Google
+rich-result-sancties voor uitdeelt. `src/test/seo.test.ts` bewaakt dit.
+
+Gevolg: een bezoeker die net zelf een review plaatste, ziet op de pagina een
+ander gemiddelde dan in de (onzichtbare) JSON-LD staat. Dat is bewust en heeft
+geen effect op de zoekresultaten.
 
 ## 5. Structured data
 
@@ -138,12 +169,14 @@ Controleren kan met de [Rich Results Test](https://search.google.com/test/rich-r
 ## 7. Controles
 
 ```bash
-npm run test    # 75 tests: meta-lengtes, canonicals, redirect-sync, schema, review-modal
+npm run test    # 86 tests: meta-lengtes, canonicals, redirect-sync, schema, reviewflow
 npm run lint
 npm run build   # faalt als vercel.json en src/lib/redirects.ts uiteenlopen
 ```
 
 De tests bewaken onder meer dat titles ≤ 60 tekens zijn, descriptions ≤ 155,
 dat titles en descriptions uniek zijn, dat elke redirect naar een bestaande
-pagina wijst, dat er geen redirect-loops ontstaan en dat elke dienst- en
-werkgebiedpagina minimaal 300 woorden unieke tekst heeft.
+pagina wijst, dat er geen redirect-loops ontstaan, dat elke dienst- en
+werkgebiedpagina minimaal 300 woorden unieke tekst heeft, dat een ingestuurde
+review wordt opgeslagen en direct in de lijst verschijnt, en dat lokale reviews
+nooit in de structured data belanden.

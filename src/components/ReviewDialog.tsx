@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, Send, CheckCircle2, ExternalLink, PenLine } from "lucide-react";
+import { Star, Send, CheckCircle2, ExternalLink, PenLine, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { addStoredReview } from "@/hooks/use-reviews";
 import { cn } from "@/lib/utils";
 import { services } from "@/content/services";
 import { EMAIL, GOOGLE_REVIEW_URL } from "@/lib/site";
@@ -39,9 +40,17 @@ const emptyForm = { naam: "", plaats: "", dienst: services[0].name, bericht: "" 
 /**
  * "Schrijf een review" knop met formulier in een modal.
  *
- * De site heeft geen backend, dus de review wordt — net als het contactformulier —
- * als e-mail klaargezet in de mailclient van de bezoeker. Daarna tonen we een
- * bevestiging met de mogelijkheid om de beoordeling ook op Google te plaatsen.
+ * Bij versturen gebeurt er drie dingen:
+ *  1. de review wordt opgeslagen in localStorage (zie `useReviews`), zodat hij
+ *     direct zichtbaar is op /beoordelingen en meetelt in het gemiddelde;
+ *  2. het Google-bedrijfsprofiel wordt in een nieuw tabblad geopend, zodat de
+ *     bezoeker de beoordeling ook daar kan achterlaten — dáár telt hij mee voor
+ *     de vindbaarheid;
+ *  3. de bezoeker krijgt een bevestiging in beeld.
+ *
+ * De site heeft geen backend, dus lokaal opgeslagen reviews bereiken ons niet
+ * vanzelf. In de bevestiging staat daarom een knop om de review ook per e-mail
+ * te sturen; die verstuurt niets automatisch maar zet een bericht klaar.
  */
 const ReviewDialog = ({
   label = "Schrijf een review",
@@ -52,12 +61,15 @@ const ReviewDialog = ({
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  /** Werd het Google-tabblad geblokkeerd door de browser? */
+  const [popupBlocked, setPopupBlocked] = useState(false);
   const [rating, setRating] = useState(5);
   const [hovered, setHovered] = useState(0);
   const [form, setForm] = useState(emptyForm);
 
   const reset = () => {
     setSubmitted(false);
+    setPopupBlocked(false);
     setRating(5);
     setHovered(0);
     setForm(emptyForm);
@@ -71,9 +83,8 @@ const ReviewDialog = ({
     }
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
+  /** Zet dezelfde review klaar als e-mail, zodat wij hem ook echt ontvangen. */
+  const mailtoHref = () => {
     const subject = encodeURIComponent(
       `Nieuwe review (${rating}/5) van ${form.naam || "een klant"}`,
     );
@@ -88,12 +99,29 @@ const ReviewDialog = ({
         form.bericht,
       ].join("\n"),
     );
-    window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`;
+    return `mailto:${EMAIL}?subject=${subject}&body=${body}`;
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    addStoredReview({
+      name: form.naam.trim(),
+      city: form.plaats.trim(),
+      rating,
+      text: form.bericht.trim(),
+      service: form.dienst,
+    });
+
+    // Synchroon binnen de klik-afhandeling openen; een `setTimeout` hieromheen
+    // zou door popup-blokkers tegengehouden worden.
+    const googleTab = window.open(GOOGLE_REVIEW_URL, "_blank", "noopener,noreferrer");
+    setPopupBlocked(!googleTab);
 
     setSubmitted(true);
     toast({
-      title: "Bedankt voor uw beoordeling!",
-      description: "Wij hebben uw review ontvangen en plaatsen hem na controle op de site.",
+      title: "Bedankt voor je review!",
+      description: "Help ons door deze ook op Google te plaatsen.",
     });
   };
 
@@ -114,17 +142,19 @@ const ReviewDialog = ({
             </div>
             <DialogHeader>
               <DialogTitle className="text-center font-heading">
-                Bedankt voor uw beoordeling!
+                Bedankt voor je review!
               </DialogTitle>
               <DialogDescription className="text-center">
-                Uw review staat klaar in uw e-mailprogramma. Verstuur het bericht om de
-                beoordeling definitief door te geven. Wij plaatsen hem na controle op de site.
+                Help ons door deze ook op Google te plaatsen. Je beoordeling staat inmiddels
+                bovenaan op onze beoordelingenpagina.
               </DialogDescription>
             </DialogHeader>
+
             <div className="mt-6 rounded-xl border border-border bg-secondary p-4 text-left">
               <p className="text-sm text-muted-foreground mb-3">
-                Helpt u ons extra? Plaats uw ervaring ook op Google. Daar helpt u andere
-                mensen die een schuifpui specialist zoeken het meest mee.
+                {popupBlocked
+                  ? "Je browser blokkeerde het nieuwe tabblad. Gebruik de knop hieronder om je beoordeling op Google te plaatsen."
+                  : "We hebben Google in een nieuw tabblad geopend. Is dat tabblad gesloten? Dan kan het hier opnieuw."}
               </p>
               <Button variant="cta" size="lg" className="w-full" asChild>
                 <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer">
@@ -133,6 +163,20 @@ const ReviewDialog = ({
                 </a>
               </Button>
             </div>
+
+            <div className="mt-3 rounded-xl border border-border p-4 text-left">
+              <p className="text-sm text-muted-foreground mb-3">
+                Je review staat nu op dit apparaat. Stuur hem ook naar ons toe, dan kunnen wij hem
+                na controle op de site plaatsen voor alle bezoekers.
+              </p>
+              <Button variant="outline" size="lg" className="w-full" asChild>
+                <a href={mailtoHref()}>
+                  <Mail className="w-4 h-4" />
+                  Review ook naar ons mailen
+                </a>
+              </Button>
+            </div>
+
             <DialogFooter className="mt-4">
               <Button variant="ghost" className="w-full" onClick={() => handleOpenChange(false)}>
                 Sluiten
@@ -260,6 +304,10 @@ const ReviewDialog = ({
                     Liever direct op Google beoordelen
                   </a>
                 </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Na het versturen openen wij Google in een nieuw tabblad, zodat u de beoordeling
+                  daar ook kunt achterlaten.
+                </p>
               </DialogFooter>
             </form>
           </>

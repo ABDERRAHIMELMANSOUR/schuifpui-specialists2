@@ -239,6 +239,34 @@ describe("structured data", () => {
     expect(types).toContain("FAQPage");
   });
 
+  it("neemt lokaal opgeslagen reviews NIET op in de structured data", () => {
+    // Reviews die een bezoeker zelf achterlaat staan alleen in diens browser.
+    // Zouden ze in de JSON-LD belanden, dan zou de aggregateRating niet meer
+    // overeenkomen met wat Googlebot (met lege localStorage) op de pagina ziet.
+    window.localStorage.setItem(
+      "ssn-reviews-v1",
+      JSON.stringify([
+        {
+          id: "test",
+          name: "Lokale Bezoeker",
+          city: "Tiel",
+          rating: 1,
+          text: "Mag niet in het schema komen.",
+          date: "2026-01-01",
+          service: "Overig",
+          source: "user",
+        },
+      ]),
+    );
+
+    const business = buildHead("/").jsonLd[0] as unknown as Business;
+    expect(business.aggregateRating.reviewCount).toBe(reviews.length);
+    expect(business.aggregateRating.ratingValue).toBe(averageRating);
+    expect(JSON.stringify(business.review)).not.toContain("Lokale Bezoeker");
+
+    window.localStorage.clear();
+  });
+
   it("noemt alle werkgebieden in areaServed", () => {
     const business = buildHead("/").jsonLd[0] as unknown as Business;
     const names = business.areaServed.map((area) => area.name);
