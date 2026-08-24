@@ -60,7 +60,8 @@ route.
 | Meta title/description van een vaste pagina | `src/lib/routes.ts` |
 | Tekst, meta en FAQ van een dienstpagina | `src/content/services.ts` |
 | Tekst, meta en FAQ van een werkgebiedpagina | `src/content/cities.ts` |
-| Klantbeoordelingen (site én schema.org) | `src/content/reviews.ts` |
+| Gecontroleerde reviews (site én schema.org) | `src/content/reviews.ts` |
+| Ingestuurde reviews beheren of modereren | Supabase-dashboard, zie [REVIEWS.md](REVIEWS.md) |
 | Structured data (schema.org) | `src/lib/schema.ts` |
 | Redirects voor oude URL's | `src/lib/redirects.ts` **én** `vercel.json` |
 
@@ -77,20 +78,36 @@ De build faalt als de twee lijsten uiteenlopen, dus vergeten kan niet.
 
 ## 4. Reviews
 
-- **Knop "Schrijf een review"** staat in de footer (op elke pagina), in de sectie
-  *Wat Onze Klanten Zeggen* op de homepage, op `/beoordelingen`, op elke
-  werkgebiedpagina met reviews en op *Over Ons*.
-- De knop opent een modal (`src/components/ReviewDialog.tsx`) met naam,
-  woonplaats, sterrenscore 1–5, dienst en toelichting.
-- Bij versturen wordt — net als bij het contactformulier — een e-mail
-  klaargezet in de mailclient van de bezoeker, gevolgd door een duidelijke
-  bevestiging in beeld en een toast-melding.
-- In de bevestiging staat een tweede knop om de review óók op Google te
-  plaatsen (zie actiepunt 3 hieronder).
+### Waar staat de knop?
 
-Reviews die binnenkomen voeg je toe aan `src/content/reviews.ts`. Gemiddelde
-score en `reviewCount` in het schema worden daaruit berekend, dus die kunnen
-nooit uit de pas lopen met wat er op de site staat.
+De knop **"Schrijf een review"** staat in de footer (dus op elke pagina), in de
+sectie *Wat Onze Klanten Zeggen* op de homepage, op `/beoordelingen`, op elke
+werkgebiedpagina met reviews en op *Over Ons*.
+
+### Wat gebeurt er bij versturen?
+
+De review gaat naar een Supabase-database en is daarmee direct voor álle
+bezoekers zichtbaar, zonder nieuwe deploy. Tegelijk opent het
+Google-bedrijfsprofiel in een nieuw tabblad.
+
+**Het instellen van Supabase, het beheren van reviews en het aanzetten van
+moderatie staat in [REVIEWS.md](REVIEWS.md).** Zolang de
+omgevingsvariabelen niet zijn ingevuld, valt het formulier terug op opslag in de
+browser van de bezoeker, zodat de site altijd blijft werken.
+
+### Waarom ingestuurde reviews niet in de structured data staan
+
+De `aggregateRating` in de JSON-LD blijft berekend over `src/content/reviews.ts`,
+de door ons gecontroleerde lijst. Reviews uit de database komen er via
+JavaScript bij en zijn niet geverifieerd; zou het gemiddelde in de markup daarop
+gebaseerd zijn, dan wijkt de markup af van wat Googlebot in de geprerenderde HTML
+ziet — precies waar Google rich-result-sancties voor uitdeelt.
+`src/test/seo.test.ts` bewaakt dit.
+
+Gevolg: op een pagina met ingestuurde reviews staat een ander gemiddelde dan in
+de (onzichtbare) JSON-LD. Dat is bewust en heeft geen effect op de
+zoekresultaten. Wil je een ingestuurde review wél laten meetellen, neem hem dan
+over in `src/content/reviews.ts`.
 
 ## 5. Structured data
 
@@ -123,13 +140,16 @@ Controleren kan met de [Rich Results Test](https://search.google.com/test/rich-r
 2. **Dien de sitemap opnieuw in** in Google Search Console:
    `https://www.schuifpuiservicenederland.nl/sitemap.xml`, en vraag via
    URL-inspectie indexering aan voor de nieuwe dienst- en werkgebiedpagina's.
-3. **Vul de Google Place ID in.** Zet in `src/lib/site.ts` de `GOOGLE_PLACE_ID`
+3. **Zet Supabase op** volgens [REVIEWS.md](REVIEWS.md), zodat ingestuurde
+   reviews voor alle bezoekers zichtbaar worden. Zonder die stap blijft een
+   review in de browser van de inzender hangen.
+4. **Vul de Google Place ID in.** Zet in `src/lib/site.ts` de `GOOGLE_PLACE_ID`
    van het bedrijfsprofiel. Bezoekers landen dan direct in het
    "schrijf een review"-scherm van Google in plaats van op het Maps-profiel.
-4. **Google Business Profile**: zorg dat naam, adres en telefoonnummer daar exact
+5. **Google Business Profile**: zorg dat naam, adres en telefoonnummer daar exact
    gelijk zijn aan `src/lib/site.ts`. Verschillen in NAP-gegevens kosten lokale
    posities.
-5. **Sterren in de zoekresultaten**: de `aggregateRating` is technisch correct
+6. **Sterren in de zoekresultaten**: de `aggregateRating` is technisch correct
    opgenomen, maar Google toont beoordelingssterren voor een lokaal bedrijf niet
    altijd op basis van reviews op de eigen site. Reviews op het Google
    Business Profile blijven daarvoor de belangrijkste bron — vandaar de
@@ -138,12 +158,14 @@ Controleren kan met de [Rich Results Test](https://search.google.com/test/rich-r
 ## 7. Controles
 
 ```bash
-npm run test    # 75 tests: meta-lengtes, canonicals, redirect-sync, schema, review-modal
+npm run test    # 98 tests: meta-lengtes, canonicals, redirect-sync, schema, reviewflow
 npm run lint
 npm run build   # faalt als vercel.json en src/lib/redirects.ts uiteenlopen
 ```
 
 De tests bewaken onder meer dat titles ≤ 60 tekens zijn, descriptions ≤ 155,
 dat titles en descriptions uniek zijn, dat elke redirect naar een bestaande
-pagina wijst, dat er geen redirect-loops ontstaan en dat elke dienst- en
-werkgebiedpagina minimaal 300 woorden unieke tekst heeft.
+pagina wijst, dat er geen redirect-loops ontstaan, dat elke dienst- en
+werkgebiedpagina minimaal 300 woorden unieke tekst heeft, dat een ingestuurde
+review wordt opgeslagen en direct in de lijst verschijnt, en dat lokale reviews
+nooit in de structured data belanden.

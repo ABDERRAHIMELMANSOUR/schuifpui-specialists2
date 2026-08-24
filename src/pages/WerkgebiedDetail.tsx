@@ -7,18 +7,22 @@ import ReviewDialog from "@/components/ReviewDialog";
 import StarRating from "@/components/StarRating";
 import { cities, cityBySlug } from "@/content/cities";
 import { services } from "@/content/services";
-import { reviews } from "@/content/reviews";
+import { isUserReview, useReviews } from "@/hooks/use-reviews";
 import { PHONE_DISPLAY, PHONE_E164 } from "@/lib/site";
 import workPhoto from "@/assets/work-photo-2.jpg";
 
 /** Detailpagina per werkgebied: /werkgebieden/:slug */
 const WerkgebiedDetail = () => {
   const { slug } = useParams();
+  const { reviews } = useReviews();
   const city = slug ? cityBySlug(slug) : undefined;
 
   if (!city) return <Navigate to="/werkgebieden" replace />;
 
-  const localReviews = reviews.filter((review) => review.city === city.name);
+  // Ook een zelf ingestuurde review uit deze plaats verschijnt hier direct.
+  const localReviews = reviews.filter(
+    (review) => review.city.toLowerCase() === city.name.toLowerCase(),
+  );
   const otherCities = cities.filter((c) => c.slug !== city.slug);
 
   return (
@@ -154,7 +158,7 @@ const WerkgebiedDetail = () => {
                   <div className="space-y-4">
                     {localReviews.map((review) => (
                       <blockquote
-                        key={review.name}
+                        key={isUserReview(review) ? review.id : `${review.name}-${review.date}`}
                         className="bg-card rounded-xl p-6 border border-border"
                       >
                         <StarRating rating={review.rating} className="mb-3" />

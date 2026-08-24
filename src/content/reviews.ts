@@ -5,13 +5,22 @@
  * gemiddelde score automatisch opnieuw berekend.
  */
 export type Review = {
+  /**
+   * Vaste identificatie van een geverifieerde review, bijvoorbeeld overgenomen
+   * uit Google. Optioneel: oudere entries hebben er geen.
+   */
+  id?: string;
   /** Naam zoals de klant die zelf heeft doorgegeven. */
   name: string;
   city: string;
   /** 1 t/m 5 sterren. */
   rating: number;
   text: string;
-  /** ISO-datum (YYYY-MM-DD), gebruikt als `datePublished` in schema.org. */
+  /**
+   * ISO-datum, gebruikt als `datePublished` in schema.org. Meestal YYYY-MM-DD;
+   * YYYY-MM mag ook wanneer alleen de maand bekend is (beide zijn geldig
+   * ISO 8601 en op de site tonen wij toch alleen maand en jaar).
+   */
   date: string;
   /** Dienst waar de review over gaat, komt terug als `itemReviewed` context. */
   service: string;
@@ -81,6 +90,17 @@ export const reviews: Review[] = [
     text: "Lokale specialist die doet wat hij belooft. Onderhoudsbeurt aan twee schuifpuien inclusief afstellen en smeren. Duidelijke offerte vooraf, geen verrassingen achteraf.",
     date: "2026-04-07",
     service: "Schuifpui onderhoud",
+  },
+  {
+    id: "tommy-docherty",
+    name: "Tommy Docherty",
+    city: "Middelburg",
+    rating: 5,
+    // Deze klant schreef zijn beoordeling in het Engels; citaten laten wij
+    // onvertaald staan zoals ze zijn achtergelaten.
+    text: "My door was completely locked up due to under wheels shearing completely off. This was an absolute disaster for the guys and a really hard fix. Total respect to the gentlemen. No complaints just got stuck into the work and done an absolute fabulous job. I can not speak highly enough of the men and I would highly recommend to anyone whom has any issues at all. Thanks again lads, grand job done.",
+    date: "2026-08",
+    service: "Schuifpui Reparatie",
   },
 ];
 
