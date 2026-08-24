@@ -102,6 +102,15 @@ export const reviews: Review[] = [
     date: "2026-08",
     service: "Schuifpui Reparatie",
   },
+  {
+    id: "els-lussenburg",
+    name: "Els Lussenburg",
+    city: "Bruinisse",
+    rating: 5,
+    text: "Schuifpui kon niet meer open. Hefsysteem werkte niet meer. Is vervangen. Binnen twee werkdagen snel en goed geholpen.",
+    date: "2026-08",
+    service: "Schuifpui Reparatie",
+  },
 ];
 
 /** Totaal aantal reviews, gebruikt in `aggregateRating.reviewCount`. */
