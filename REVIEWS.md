@@ -147,4 +147,4 @@ schema én blijft hij staan als de database ooit leeg raakt.
 - **Gratis plan.** Supabase pauzeert projecten die een week lang geen verkeer
   krijgen. Bij een actieve site is dat geen probleem; gebeurt het toch, dan
   hervat je het project in het dashboard. De site zelf blijft ondertussen
-  gewoon werken.
+  gewoon werken. 
