@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { addStoredReview } from "@/hooks/use-reviews";
+import { useReviews, type SubmitOutcome } from "@/hooks/use-reviews";
 import { cn } from "@/lib/utils";
 import { services } from "@/content/services";
 import { EMAIL, GOOGLE_REVIEW_URL } from "@/lib/site";
@@ -38,19 +38,46 @@ const RATING_LABELS = [
 const emptyForm = { naam: "", plaats: "", dienst: services[0].name, bericht: "" };
 
 /**
+ * Wat de bezoeker te zien krijgt, afhankelijk van wat er echt is gebeurd.
+ * Beloven dat een review op de site staat terwijl dat niet zo is, is precies
+ * het soort onduidelijkheid dat later klachten oplevert.
+ */
+const CONFIRMATION: Record<
+  SubmitOutcome,
+  { toastTitle: string; toastBody: string; title: string; body: string }
+> = {
+  published: {
+    toastTitle: "Bedankt! Je review staat nu op onze site.",
+    toastBody: "Help ons door deze ook op Google te plaatsen.",
+    title: "Bedankt! Je review staat nu op onze site.",
+    body: "Help ons door deze ook op Google te plaatsen. Daar helpt je ervaring anderen die een schuifpui specialist zoeken het meest.",
+  },
+  "awaiting-approval": {
+    toastTitle: "Bedankt voor je review!",
+    toastBody: "Wij plaatsen hem zodra we hem hebben gelezen.",
+    title: "Bedankt voor je review!",
+    body: "We hebben je beoordeling ontvangen. Zodra wij hem hebben gelezen, verschijnt hij op de site. Help ons alvast door deze ook op Google te plaatsen.",
+  },
+  "stored-locally": {
+    toastTitle: "Bedankt voor je review!",
+    toastBody: "Hij is op dit apparaat bewaard.",
+    title: "Bedankt voor je review!",
+    body: "We konden je beoordeling nu niet op de site plaatsen, dus hebben we hem op dit apparaat bewaard. Help ons door deze ook op Google te plaatsen — of stuur hem hieronder even naar ons toe.",
+  },
+};
+
+/**
  * "Schrijf een review" knop met formulier in een modal.
  *
  * Bij versturen gebeurt er drie dingen:
- *  1. de review wordt opgeslagen in localStorage (zie `useReviews`), zodat hij
- *     direct zichtbaar is op /beoordelingen en meetelt in het gemiddelde;
- *  2. het Google-bedrijfsprofiel wordt in een nieuw tabblad geopend, zodat de
- *     bezoeker de beoordeling ook daar kan achterlaten — dáár telt hij mee voor
- *     de vindbaarheid;
- *  3. de bezoeker krijgt een bevestiging in beeld.
- *
- * De site heeft geen backend, dus lokaal opgeslagen reviews bereiken ons niet
- * vanzelf. In de bevestiging staat daarom een knop om de review ook per e-mail
- * te sturen; die verstuurt niets automatisch maar zet een bericht klaar.
+ *  1. het Google-bedrijfsprofiel gaat open in een nieuw tabblad. Dit moet
+ *     synchroon in de klik gebeuren — na een `await` beschouwen browsers het
+ *     niet meer als handeling van de bezoeker en blokkeren zij het venster;
+ *  2. de review gaat naar Supabase en is daarmee direct voor álle bezoekers
+ *     zichtbaar. Lukt dat niet, dan bewaren wij hem lokaal zodat hij niet
+ *     verloren gaat (zie `useReviews`);
+ *  3. de bezoeker krijgt een bevestiging die past bij wat er werkelijk is
+ *     gebeurd: geplaatst, in afwachting van goedkeuring, of alleen lokaal.
  */
 const ReviewDialog = ({
   label = "Schrijf een review",
@@ -59,8 +86,10 @@ const ReviewDialog = ({
   className,
 }: ReviewDialogProps) => {
   const { toast } = useToast();
+  const { submitReview } = useReviews();
   const [open, setOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [outcome, setOutcome] = useState<SubmitOutcome | null>(null);
+  const [pending, setPending] = useState(false);
   /** Werd het Google-tabblad geblokkeerd door de browser? */
   const [popupBlocked, setPopupBlocked] = useState(false);
   const [rating, setRating] = useState(5);
@@ -68,7 +97,8 @@ const ReviewDialog = ({
   const [form, setForm] = useState(emptyForm);
 
   const reset = () => {
-    setSubmitted(false);
+    setOutcome(null);
+    setPending(false);
     setPopupBlocked(false);
     setRating(5);
     setHovered(0);
@@ -102,26 +132,30 @@ const ReviewDialog = ({
     return `mailto:${EMAIL}?subject=${subject}&body=${body}`;
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (pending) return;
 
-    addStoredReview({
+    // Eerst het tabblad openen, vóór de `await`: daarna is de klik voor de
+    // browser geen directe handeling van de bezoeker meer en wordt het venster
+    // geblokkeerd.
+    const googleTab = window.open(GOOGLE_REVIEW_URL, "_blank", "noopener,noreferrer");
+    setPopupBlocked(!googleTab);
+
+    setPending(true);
+    const result = await submitReview({
       name: form.naam.trim(),
       city: form.plaats.trim(),
       rating,
       text: form.bericht.trim(),
       service: form.dienst,
     });
+    setPending(false);
+    setOutcome(result);
 
-    // Synchroon binnen de klik-afhandeling openen; een `setTimeout` hieromheen
-    // zou door popup-blokkers tegengehouden worden.
-    const googleTab = window.open(GOOGLE_REVIEW_URL, "_blank", "noopener,noreferrer");
-    setPopupBlocked(!googleTab);
-
-    setSubmitted(true);
     toast({
-      title: "Bedankt voor je review!",
-      description: "Help ons door deze ook op Google te plaatsen.",
+      title: CONFIRMATION[result].toastTitle,
+      description: CONFIRMATION[result].toastBody,
     });
   };
 
@@ -135,18 +169,17 @@ const ReviewDialog = ({
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-        {submitted ? (
+        {outcome ? (
           <div className="text-center py-4">
             <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8 text-accent" />
             </div>
             <DialogHeader>
               <DialogTitle className="text-center font-heading">
-                Bedankt voor je review!
+                {CONFIRMATION[outcome].title}
               </DialogTitle>
               <DialogDescription className="text-center">
-                Help ons door deze ook op Google te plaatsen. Je beoordeling staat inmiddels
-                bovenaan op onze beoordelingenpagina.
+                {CONFIRMATION[outcome].body}
               </DialogDescription>
             </DialogHeader>
 
@@ -164,18 +197,20 @@ const ReviewDialog = ({
               </Button>
             </div>
 
-            <div className="mt-3 rounded-xl border border-border p-4 text-left">
-              <p className="text-sm text-muted-foreground mb-3">
-                Je review staat nu op dit apparaat. Stuur hem ook naar ons toe, dan kunnen wij hem
-                na controle op de site plaatsen voor alle bezoekers.
-              </p>
-              <Button variant="outline" size="lg" className="w-full" asChild>
-                <a href={mailtoHref()}>
-                  <Mail className="w-4 h-4" />
-                  Review ook naar ons mailen
-                </a>
-              </Button>
-            </div>
+            {outcome === "stored-locally" && (
+              <div className="mt-3 rounded-xl border border-border p-4 text-left">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Je review staat alleen op dit apparaat. Stuur hem ook naar ons toe, dan plaatsen
+                  wij hem alsnog op de site voor alle bezoekers.
+                </p>
+                <Button variant="outline" size="lg" className="w-full" asChild>
+                  <a href={mailtoHref()}>
+                    <Mail className="w-4 h-4" />
+                    Review ook naar ons mailen
+                  </a>
+                </Button>
+              </div>
+            )}
 
             <DialogFooter className="mt-4">
               <Button variant="ghost" className="w-full" onClick={() => handleOpenChange(false)}>
@@ -294,9 +329,15 @@ const ReviewDialog = ({
               </div>
 
               <DialogFooter className="flex-col sm:flex-col gap-2">
-                <Button type="submit" variant="cta" size="lg" className="w-full">
+                <Button
+                  type="submit"
+                  variant="cta"
+                  size="lg"
+                  className="w-full"
+                  disabled={pending}
+                >
                   <Send className="w-4 h-4" />
-                  Review versturen
+                  {pending ? "Bezig met versturen..." : "Review versturen"}
                 </Button>
                 <Button variant="outline" size="lg" className="w-full" asChild>
                   <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer">

@@ -60,7 +60,8 @@ route.
 | Meta title/description van een vaste pagina | `src/lib/routes.ts` |
 | Tekst, meta en FAQ van een dienstpagina | `src/content/services.ts` |
 | Tekst, meta en FAQ van een werkgebiedpagina | `src/content/cities.ts` |
-| Klantbeoordelingen (site én schema.org) | `src/content/reviews.ts` |
+| Gecontroleerde reviews (site én schema.org) | `src/content/reviews.ts` |
+| Ingestuurde reviews beheren of modereren | Supabase-dashboard, zie [REVIEWS.md](REVIEWS.md) |
 | Structured data (schema.org) | `src/lib/schema.ts` |
 | Redirects voor oude URL's | `src/lib/redirects.ts` **én** `vercel.json` |
 
@@ -85,43 +86,28 @@ werkgebiedpagina met reviews en op *Over Ons*.
 
 ### Wat gebeurt er bij versturen?
 
-`src/components/ReviewDialog.tsx` doet drie dingen, in deze volgorde:
+De review gaat naar een Supabase-database en is daarmee direct voor álle
+bezoekers zichtbaar, zonder nieuwe deploy. Tegelijk opent het
+Google-bedrijfsprofiel in een nieuw tabblad.
 
-1. **Opslaan in de browser.** De review gaat naar `localStorage` (sleutel
-   `ssn-reviews-v1`, zie `src/hooks/use-reviews.ts`). Hij verschijnt daardoor
-   direct bovenaan op `/beoordelingen`, telt meteen mee in het gemiddelde en in
-   de teller in de footer en op de homepage, en verschijnt ook op de
-   werkgebiedpagina van de opgegeven woonplaats. Er is geen deploy nodig.
-2. **Google openen.** Het Google-bedrijfsprofiel gaat open in een nieuw tabblad.
-   Dat gebeurt synchroon binnen de klik, anders blokkeren browsers het venster.
-   Wordt het tóch geblokkeerd, dan legt de bevestiging dat uit en staat er een
-   knop om het alsnog te openen.
-3. **Bevestigen.** De bezoeker ziet "Bedankt voor je review! Help ons door deze
-   ook op Google te plaatsen", plus een toast-melding.
+**Het instellen van Supabase, het beheren van reviews en het aanzetten van
+moderatie staat in [REVIEWS.md](REVIEWS.md).** Zolang de
+omgevingsvariabelen niet zijn ingevuld, valt het formulier terug op opslag in de
+browser van de bezoeker, zodat de site altijd blijft werken.
 
-### Belangrijk: lokale reviews bereiken ons niet vanzelf
+### Waarom ingestuurde reviews niet in de structured data staan
 
-`localStorage` is per browser en per apparaat. Een review die een bezoeker
-achterlaat, ziet **alleen die bezoeker**. Daarom staat in de bevestiging een knop
-*"Review ook naar ons mailen"*, die dezelfde review als e-mail klaarzet. Komt zo'n
-mail binnen en klopt hij, voeg hem dan toe aan `src/content/reviews.ts`: pas dan
-is hij voor iedereen zichtbaar en telt hij mee in de structured data.
+De `aggregateRating` in de JSON-LD blijft berekend over `src/content/reviews.ts`,
+de door ons gecontroleerde lijst. Reviews uit de database komen er via
+JavaScript bij en zijn niet geverifieerd; zou het gemiddelde in de markup daarop
+gebaseerd zijn, dan wijkt de markup af van wat Googlebot in de geprerenderde HTML
+ziet — precies waar Google rich-result-sancties voor uitdeelt.
+`src/test/seo.test.ts` bewaakt dit.
 
-Op `/beoordelingen` zijn eigen reviews herkenbaar aan een accentrand en het label
-*"Uw beoordeling · alleen op dit apparaat zichtbaar totdat wij hem hebben
-gecontroleerd"*, met een prullenbakknop om hem weer te verwijderen.
-
-### Waarom lokale reviews niet in de structured data staan
-
-De `aggregateRating` in de JSON-LD blijft berekend over `src/content/reviews.ts`.
-Googlebot heeft een lege `localStorage` en ziet dus exact dezelfde reviews als in
-de markup staan. Zouden lokale reviews wél meegaan, dan zou de markup niet
-overeenkomen met de zichtbare inhoud — precies waar Google
-rich-result-sancties voor uitdeelt. `src/test/seo.test.ts` bewaakt dit.
-
-Gevolg: een bezoeker die net zelf een review plaatste, ziet op de pagina een
-ander gemiddelde dan in de (onzichtbare) JSON-LD staat. Dat is bewust en heeft
-geen effect op de zoekresultaten.
+Gevolg: op een pagina met ingestuurde reviews staat een ander gemiddelde dan in
+de (onzichtbare) JSON-LD. Dat is bewust en heeft geen effect op de
+zoekresultaten. Wil je een ingestuurde review wél laten meetellen, neem hem dan
+over in `src/content/reviews.ts`.
 
 ## 5. Structured data
 
@@ -154,13 +140,16 @@ Controleren kan met de [Rich Results Test](https://search.google.com/test/rich-r
 2. **Dien de sitemap opnieuw in** in Google Search Console:
    `https://www.schuifpuiservicenederland.nl/sitemap.xml`, en vraag via
    URL-inspectie indexering aan voor de nieuwe dienst- en werkgebiedpagina's.
-3. **Vul de Google Place ID in.** Zet in `src/lib/site.ts` de `GOOGLE_PLACE_ID`
+3. **Zet Supabase op** volgens [REVIEWS.md](REVIEWS.md), zodat ingestuurde
+   reviews voor alle bezoekers zichtbaar worden. Zonder die stap blijft een
+   review in de browser van de inzender hangen.
+4. **Vul de Google Place ID in.** Zet in `src/lib/site.ts` de `GOOGLE_PLACE_ID`
    van het bedrijfsprofiel. Bezoekers landen dan direct in het
    "schrijf een review"-scherm van Google in plaats van op het Maps-profiel.
-4. **Google Business Profile**: zorg dat naam, adres en telefoonnummer daar exact
+5. **Google Business Profile**: zorg dat naam, adres en telefoonnummer daar exact
    gelijk zijn aan `src/lib/site.ts`. Verschillen in NAP-gegevens kosten lokale
    posities.
-5. **Sterren in de zoekresultaten**: de `aggregateRating` is technisch correct
+6. **Sterren in de zoekresultaten**: de `aggregateRating` is technisch correct
    opgenomen, maar Google toont beoordelingssterren voor een lokaal bedrijf niet
    altijd op basis van reviews op de eigen site. Reviews op het Google
    Business Profile blijven daarvoor de belangrijkste bron — vandaar de
@@ -169,7 +158,7 @@ Controleren kan met de [Rich Results Test](https://search.google.com/test/rich-r
 ## 7. Controles
 
 ```bash
-npm run test    # 86 tests: meta-lengtes, canonicals, redirect-sync, schema, reviewflow
+npm run test    # 98 tests: meta-lengtes, canonicals, redirect-sync, schema, reviewflow
 npm run lint
 npm run build   # faalt als vercel.json en src/lib/redirects.ts uiteenlopen
 ```

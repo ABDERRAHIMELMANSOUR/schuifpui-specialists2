@@ -18,7 +18,7 @@ const formatDate = (iso: string) =>
  * inclusief het bijgewerkte gemiddelde en aantal.
  */
 const Beoordelingen = () => {
-  const { reviews, reviewCount, averageRating, userReviews, removeReview } = useReviews();
+  const { reviews, reviewCount, averageRating, userReviews, loading, removeReview } = useReviews();
 
   // Eigen reviews bovenaan, daarna de rest op datum aflopend.
   const sorted = [...reviews].sort((a, b) => {
@@ -88,13 +88,18 @@ const Beoordelingen = () => {
               <h2 className="font-heading text-2xl font-bold mb-2">
                 Alle {reviewCount} beoordelingen
               </h2>
+              {loading && (
+                <p className="text-sm text-muted-foreground mb-6" role="status">
+                  Nieuwe beoordelingen worden geladen...
+                </p>
+              )}
               {userReviews.length > 0 && (
                 <p className="text-sm text-muted-foreground mb-6">
                   Waarvan {userReviews.length}{" "}
-                  {userReviews.length === 1 ? "beoordeling" : "beoordelingen"} van uzelf. Die
-                  {userReviews.length === 1 ? " staat" : " staan"} op dit apparaat opgeslagen en
-                  {userReviews.length === 1 ? " telt" : " tellen"} hieronder meteen mee in het
-                  gemiddelde.
+                  {userReviews.length === 1 ? "beoordeling" : "beoordelingen"} van uzelf.
+                  {userReviews.some((review) => review.awaitingApproval)
+                    ? " Die plaatsen wij op de site zodra wij hem hebben gelezen."
+                    : " Die staan voorlopig alleen op dit apparaat."}
                 </p>
               )}
               <div className="mb-6" />
@@ -110,8 +115,9 @@ const Beoordelingen = () => {
                     >
                       {own && (
                         <p className="text-xs font-medium text-accent mb-3">
-                          Uw beoordeling · alleen op dit apparaat zichtbaar totdat wij hem hebben
-                          gecontroleerd
+                          {review.awaitingApproval
+                            ? "Uw beoordeling · zichtbaar voor iedereen zodra wij hem hebben gelezen"
+                            : "Uw beoordeling · voorlopig alleen op dit apparaat zichtbaar"}
                         </p>
                       )}
                       <StarRating rating={review.rating} className="mb-3" />
