@@ -51,7 +51,7 @@ const Contact = () => {
           </h1>
           <p className="text-primary-foreground/80 text-lg max-w-2xl">
             Neem contact op voor een vrijblijvende offerte of direct advies over uw schuifpui.
-            Bereikbaar op werkdagen van 08:00 tot 18:00 uur.
+            24/7 bereikbaar via WhatsApp en e-mail.
           </p>
         </div>
       </section>
@@ -160,7 +160,7 @@ const Contact = () => {
               <div className="bg-card rounded-xl p-6 border border-border">
                 <h3 className="font-heading font-bold mb-2">Liever direct bellen?</h3>
                 <p className="text-muted-foreground text-sm mb-4">
-                  Wij zijn bereikbaar van maandag t/m vrijdag, 08:00 - 18:00 uur.
+                  24/7 bereikbaar via WhatsApp en e-mail.
                 </p>
                 <Button variant="cta" size="lg" asChild>
                   <a href={`tel:${PHONE_E164}`}><Phone className="w-4 h-4" /> Bel nu: {PHONE_DISPLAY}</a>
