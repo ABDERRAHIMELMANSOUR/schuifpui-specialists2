@@ -42,10 +42,25 @@ export const ADDRESS = {
 /** Coördinaten van de vestiging in Tiel (gebruikt in LocalBusiness schema). */
 export const GEO = { latitude: 51.8853, longitude: 5.4284 } as const;
 
+/**
+ * Openingstijden voor het `openingHoursSpecification` in het LocalBusiness
+ * schema. Het bedrijf is 24/7 bereikbaar via WhatsApp en e-mail, dus alle zeven
+ * dagen van 00:00 tot 23:59. Zo laat Google geen "gesloten" bij de vermelding
+ * zien. Let op: de openingstijden in het Google Business Profile staan daar los
+ * van en moeten in dat dashboard zelf worden aangepast.
+ */
 export const OPENING_HOURS = {
-  days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-  opens: "08:00",
-  closes: "18:00",
+  days: [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ],
+  opens: "00:00",
+  closes: "23:59",
 } as const;
 
 export const GOOGLE_MAPS_URL = "https://maps.app.goo.gl/QmxnFJ2oZxS7VoiB8";
