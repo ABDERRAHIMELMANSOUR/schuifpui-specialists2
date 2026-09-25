@@ -81,7 +81,7 @@ const staticRoutes: RouteMeta[] = [
     path: "/contact",
     title: "Contact | Schuifpui Service Nederland in Tiel",
     description:
-      "Neem contact op voor een vrijblijvende offerte. Voltastraat 3B, Tiel. Bereikbaar ma t/m vr 08:00-18:00. Bel 0344 700 234 of app 06 360 745 31.",
+      "Neem contact op voor een vrijblijvende offerte. Voltastraat 3B, Tiel. 24/7 bereikbaar via WhatsApp en e-mail. Bel 0344 700 234 of app 06 360 745 31.",
     priority: 0.8,
     changefreq: "yearly",
     breadcrumb: "Contact",
